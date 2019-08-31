@@ -1,8 +1,7 @@
 from ..items import Product
 import scrapy
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 
@@ -10,6 +9,7 @@ from selenium.common.exceptions import TimeoutException
 class WoolWorthsSpider(scrapy.Spider):
     def __init__(self):
         self.driver = self.initiate_driver()
+
     name = 'woolworths'
     allowed_domains = ['woolworths.com.au']
     start_urls = ['https://www.woolworths.com.au/shop/browse/drinks/cordials-juices-iced-teas']
@@ -22,20 +22,24 @@ class WoolWorthsSpider(scrapy.Spider):
 
         self.driver.get(response.url)
         try:
-            myElem = WebDriverWait(self.driver, 100).until(EC.presence_of_element_located((By.CLASS_NAME, 'shelfProductTile-descriptionLink')))
+            WebDriverWait(
+                self.driver, 100)\
+                .until(ec.presence_of_element_located((By.CLASS_NAME, 'shelfProductTile-descriptionLink')))
         except TimeoutException:
             print("Loading took too much time!")
 
         breadcrumbs = '' + self.driver.find_element_by_class_name('breadcrumbs').text
-        products_names = [Product(name='' + product_name.text) for product_name in self.driver.find_elements_by_class_name('shelfProductTile-descriptionLink')]
+        products_names = [
+            Product(name='' + product_name.text)
+            for product_name in self.driver.find_elements_by_class_name('shelfProductTile-descriptionLink')
+        ]
         yield {
-            'breadcrumbs':breadcrumbs.split('\n'),
-            'products':products_names
+            'breadcrumbs': breadcrumbs.split('\n'),
+            'products': products_names
         }
 
-
-
-    def initiate_driver(self):
+    @staticmethod
+    def initiate_driver():
         from selenium import webdriver
         from selenium.webdriver.chrome.options import Options
 
