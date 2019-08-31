@@ -1,6 +1,5 @@
-import requests as rq
 from urllib3 import PoolManager
-import bs4 as bs
+import json
 if __name__ == '__main__':
     req = {
         'header': {
@@ -20,6 +19,5 @@ if __name__ == '__main__':
         fields=req['data'],
         headers=req['header']
     )
-    soup = bs.BeautifulSoup(res.data, 'lxml')
 
-    print(soup.prettify())
+    print(json.loads(res.data.decode('utf-8'))['headers'])
